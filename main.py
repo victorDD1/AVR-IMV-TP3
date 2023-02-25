@@ -1,6 +1,4 @@
 import numpy as np
-import scipy
-import cv2
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import tqdm as tqdm
@@ -15,7 +13,7 @@ _SIGMA_INH = 2 * 50*50 / (_WIDTH*_HEIGHT)
 _SIGMA = 0.1
 _GAMMA = 4.5
 _H = 0.05
-_DT = 1e-0
+_DT = 1e-4
 _TAU = 0.1*_DT
 
 _P1 = (0.4, 0.4)

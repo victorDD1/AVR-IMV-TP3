@@ -1,8 +1,4 @@
-import cv2
-import scipy
-
 import numpy as np
-from scipy import signal
 
 # distance euclidienne dans un espace normalisé [0,1]x[0,1]
 def euclidean_dist(x, y):
