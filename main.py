@@ -5,37 +5,58 @@ import tqdm as tqdm
 from baseDNF import gaussian, euclidean_dist, logistic_sigmoid
 from neuron import CUBA_LIF
 
-# DNF
-_C_EXC = 0.2
-_C_INH = 0.16
-_WIDTH = 25
-_HEIGHT = 25
-_SIGMA_EXC = 0.1 * 50*50 / (_WIDTH*_HEIGHT)
-_SIGMA_INH = 2 * 50*50 / (_WIDTH*_HEIGHT)
-_SIGMA = 0.1
-_SIGMA_SPIKE = 0.06
-_GAMMA = 4.5
-_GAMMA_MAX = 200
-_H = 0.05
+####################################
+QUESTION = 1
+####################################
 
 # ACTIVITIES
 _P1 = (0.3, 0.3)
 _P2 = (0.7, 0.7)
 
-# SIMU
-_DT = 1e-4
-_TAU = 0.1*_DT
-_N = 100
+if QUESTION == 1:
+    # DNF
+    _C_EXC = 0.2
+    _C_INH = 0.16
+    _WIDTH = 45
+    _HEIGHT = 45
+    _SIGMA_EXC = 0.1 * 50*50 / (_WIDTH*_HEIGHT)
+    _SIGMA_INH = 2 * 50*50 / (_WIDTH*_HEIGHT)
+    _SIGMA = 0.1
+    _SIGMA_SPIKE = 0.06
+    _GAMMA = 4.5
+    _H = 0.05
 
-# NEURON CUBA LIF
-_C = 3e-6     # F
-_R = 600      # Ohm
-_U0 = 0.1     # V
-_I0 = 2.0e-3  # A
-_SEUIL = 2e-1 # mV
-_TAU = 1.5e-3   # s
+    # SIMU
+    _DT = 1e-2
+    _TAU = 0.1*_DT
+    _N = 1000
 
-_CONNEXION_WEIGHT_EX = 1e-3
+if QUESTION == 2:
+    # DNF
+    _C_EXC = 0.2
+    _C_INH = 0.16
+    _WIDTH = 20
+    _HEIGHT = 20
+    _SIGMA_EXC = 0.1 * 50*50 / (_WIDTH*_HEIGHT)
+    _SIGMA_INH = 2 * 50*50 / (_WIDTH*_HEIGHT)
+    _SIGMA = 0.1
+    _SIGMA_SPIKE = 0.06
+    _GAMMA = 4.5
+    _H = 0.05
+
+    # SIMU
+    _DT = 5e-4
+    _N = 1000
+
+    # NEURON CUBA LIF
+    _C = 3e-6     # F
+    _R = 600      # Ohm
+    _U0 = 0.1     # V
+    _I0 = 2.0e-3  # A
+    _SEUIL = 2e-1 # mV
+    _TAU = 1.5e-3   # s
+
+    _CONNEXION_WEIGHT_EX = 1e-3
 
 
 def omega(
@@ -117,13 +138,13 @@ def moving_activities_in_circle(t, T, r, sizes, sigma, N=1):
     t = t%T
     pos = lambda r, theta : (r*np.cos(theta)/2+0.5, r*np.sin(theta)/2+0.5)
 
-    centers = [pos(r, 2*np.pi*t/T + i*np.pi/N) for i in range(N)] 
+    centers = [pos(r, 2*np.pi*t/T + i*2*np.pi/N) for i in range(N)] 
     activity = gaussian_activity(centers, sizes, sigma)
     
     return activity
 
-def update_activities(T, r, height, sigma):
-    return lambda t : moving_activities_in_circle(t, T, r, height, sigma)
+def update_activities(T, r, height, sigma, N=1):
+    return lambda t : moving_activities_in_circle(t, T, r, height, sigma, N)
 
 class DNF:
     def __init__(self, input_map, c_exc, c_inh, sigma_exc, sigma_inh, gamma, h, width=45, height=45, tau=1e-3, dt=1e-5): # à vous de déterminer les paramètres nécessaires
@@ -303,7 +324,6 @@ class SpikingDNF(DNF):
 
 
 if __name__ == "__main__":
-    QUESTION = 2
 
     if QUESTION == 1:
         activity = gaussian_activity([_P1, _P2], _HEIGHT, _SIGMA)
@@ -311,8 +331,8 @@ if __name__ == "__main__":
 
         dnf = DNF(
             input_map=activity,
-            c_exc=_C_EXC_DNF,
-            c_inh=_C_INH_DNF,
+            c_exc=_C_EXC,
+            c_inh=_C_INH,
             sigma_exc=_SIGMA_EXC,
             sigma_inh=_SIGMA_INH,
             gamma=_GAMMA,
@@ -354,6 +374,6 @@ if __name__ == "__main__":
             dt=_DT,
         )
 
-        update_act = update_activities(1e-1, 0.7, _HEIGHT, _SIGMA_SPIKE)
+        update_act = update_activities(5e-1, 0.7, _HEIGHT, _SIGMA_SPIKE, N=1)
         spiking_dnf.update_map_N(_N, update_activities=update_act)
         plot_gaussian_activity(spiking_dnf.potentials, f"Potentials at time {_N*_DT}s", "figures/spiking_dnf_potential.png")
