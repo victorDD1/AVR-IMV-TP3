@@ -6,12 +6,12 @@ from baseDNF import gaussian, euclidean_dist, logistic_sigmoid
 from neuron import CUBA_LIF
 
 ####################################
-QUESTION = 1
+QUESTION = 2
 ####################################
 
 # ACTIVITIES
-_P1 = (0.3, 0.3)
-_P2 = (0.7, 0.7)
+_P1 = (0.15, 0.5)
+_P2 = (0.85, 0.5)
 
 if QUESTION == 1:
     # DNF
@@ -26,10 +26,12 @@ if QUESTION == 1:
     _GAMMA = 4.5
     _H = 0.05
 
+    _T = np.inf # Period of the circular motion. For static actitivties -> np.inf
+
     # SIMU
     _DT = 1e-2
     _TAU = 0.1*_DT
-    _N = 1000
+    _N = 5000
 
 if QUESTION == 2:
     # DNF
@@ -43,6 +45,8 @@ if QUESTION == 2:
     _SIGMA_SPIKE = 0.06
     _GAMMA = 4.5
     _H = 0.05
+
+    _T = np.inf
 
     # SIMU
     _DT = 5e-4
@@ -327,7 +331,7 @@ if __name__ == "__main__":
 
     if QUESTION == 1:
         activity = gaussian_activity([_P1, _P2], _HEIGHT, _SIGMA)
-        plot_gaussian_activity(activity, "Activity")
+        plot_gaussian_activity(activity, "Activity", "figures/activities.png")
 
         dnf = DNF(
             input_map=activity,
@@ -345,7 +349,7 @@ if __name__ == "__main__":
 
         plot_gaussian_activity(dnf.kernel, "Kernel", f"figures/kernel.png")
 
-        update_act = update_activities(2, 0.7, _HEIGHT, _SIGMA)
+        update_act = update_activities(_T, 0.7, _HEIGHT, _SIGMA, N=2)
         dnf.update_map_N(_N, update_activities=update_act)
 
         plot_gaussian_activity(dnf.potentials, f"Potentials at time {_N*_DT}s", "figures/potential.png")
@@ -374,6 +378,6 @@ if __name__ == "__main__":
             dt=_DT,
         )
 
-        update_act = update_activities(5e-1, 0.7, _HEIGHT, _SIGMA_SPIKE, N=1)
+        update_act = update_activities(_T, 0.7, _HEIGHT, _SIGMA_SPIKE, N=2)
         spiking_dnf.update_map_N(_N, update_activities=update_act)
         plot_gaussian_activity(spiking_dnf.potentials, f"Potentials at time {_N*_DT}s", "figures/spiking_dnf_potential.png")
